@@ -37,7 +37,6 @@ func main() {
 
 	buffSize := 256
 	var conn *net.UDPConn
-	var file *os.File
 	nextWriteTime := time.Now()
 
 	addr := net.UDPAddr{
