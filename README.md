@@ -14,4 +14,6 @@ This program is built for Windows 10 and above only and has not been tested on o
 
 ## Usage
 
-With the config files correctly configured, run the command `go build` to build the executable. Then run the executable either by clicking on it or by running the command `.\main.exe` in the terminal.
+With the config files correctly configured, use command `go build` to build the executable. Then run the executable either by clicking on it or by using the command `.\main.exe` in the Command Prompt or PowerShell.
+
+To directly compile and run the code, use the command `go run .` .
