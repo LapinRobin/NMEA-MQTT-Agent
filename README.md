@@ -2,7 +2,7 @@
 
 ## Overview
 
-This is a configurable NMEA parser and MQTT publisher written in Go. It is designed to be used with the [OpenPlotter Signal K Node Server]
+This is a configurable NMEA parser and MQTT publisher written in Go. 
 
 ## Configuration
 
