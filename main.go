@@ -20,7 +20,8 @@ func main() {
 
 	// print(interval)
 	if interval == -1 {
-		fmt.Fprintf(os.Stderr, "Could not read config.txt, defaulting to 10 seconds\n")
+		fmt.Fprintf(os.Stderr,
+			"Could not read config.txt, defaulting to 10 seconds\n")
 		interval = 10000
 	}
 
@@ -50,19 +51,6 @@ func main() {
 		return
 	}
 	defer conn.Close()
-
-	file, err = os.Create("GPS_data.txt")
-	if err != nil {
-		fmt.Println("Could not create file, error:", err)
-		return
-	}
-	defer file.Close()
-
-	_, err = file.WriteString("UT;POS;BSP;SOG;COG;TWS;TWD;TWA;PRES\n")
-	if err != nil {
-		fmt.Println("Could not write to file, error:", err)
-		return
-	}
 
 	fmt.Println("Listening on UDP port", port)
 	fmt.Println("Sending data every", interval, "milliseconds")
