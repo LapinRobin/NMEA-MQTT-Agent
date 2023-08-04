@@ -1,0 +1,3 @@
+port=4001
+interval=10000
+sentences=(GPRMC,INXDR)
