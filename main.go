@@ -2,7 +2,7 @@ package main
 
 import (
 	"encoding/json"
-	"fmt" // Import the mqttConfig package
+	"fmt"
 	"log"
 	"net"
 	"os"
@@ -98,7 +98,7 @@ func main() {
 			}
 		}
 
-		// If it's time to send data and there's any data to send
+		// If it's time to send data and if any data to send
 		if time.Now().After(nextWriteTime) && len(parsedData) > 0 {
 			jsonData, err := json.Marshal(parsedData)
 			if err != nil {
@@ -106,10 +106,8 @@ func main() {
 			}
 
 			print("publishing data...\n")
-			// print JSON data to console
-			// fmt.Println(string(jsonData))
-			// Publish JSON data to an MQTT topic
 
+			// Publish JSON data to an MQTT topic
 			token := mqttClient.Publish(topic, 0, false, jsonData)
 			token.Wait()
 

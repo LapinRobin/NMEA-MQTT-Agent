@@ -77,7 +77,6 @@ func getSentencesFromConfig() []string {
 	for i, sentence := range sentences {
 		sentences[i] = "$" + strings.TrimSpace(sentence)
 	}
-	// print(sentences)
 
 	return sentences
 }

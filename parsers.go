@@ -1,10 +1,8 @@
-// parsers.go
-
 package main
 
 import "strings"
 
-// parseSentence is a skeleton function that should parse different sentence types
+// skeleton function
 func parseSentence(sentenceType string, line string) (map[string]string, bool) {
 	switch sentenceType {
 	case "$GPRMC":
@@ -18,7 +16,7 @@ func parseSentence(sentenceType string, line string) (map[string]string, bool) {
 
 }
 
-// parseGPRMC is a helper function to parse $GPRMC sentences
+// helper function to parse $GPRMC sentences
 func parseGPRMC(line string) (map[string]string, bool) {
 	isValidData := true
 	linePtr := line
@@ -92,9 +90,9 @@ func parseGPRMC(line string) (map[string]string, bool) {
 	return data, isValidData
 }
 
-// parseINXDR is a helper function to parse $INXDR sentences
+// helper function to parse $INXDR sentences
 func parseINXDR(line string) (map[string]string, bool) {
-	// Initialize a map to hold the parsed data
+	// Initialize map
 	data := map[string]string{
 		"Trim":    "0",
 		"FoilA":   "0",
@@ -111,7 +109,7 @@ func parseINXDR(line string) (map[string]string, bool) {
 		"MastRot": "0",
 	}
 
-	// First, split the line on the '*' to remove the checksum
+	// Remove the checksum
 	splitLine := strings.Split(line, "*")
 
 	// If there's anything other than 2 parts, the line was malformed
@@ -119,19 +117,9 @@ func parseINXDR(line string) (map[string]string, bool) {
 		return data, false
 	}
 
-	// Next, split the remaining line on commas
+	// Split the remaining line on commas
 	fields := strings.Split(splitLine[0], ",")
 
-	// If the sentence doesn't start with "$INXDR", it's not the right kind of sentence
-	if fields[0] != "$INXDR" {
-		return data, false
-	}
-
-	// Now we can start processing the fields
-	// Fields[1] should be "A"
-	// Fields[2] contains the value
-	// Fields[3] contains the units
-	// Fields[4] contains the type (the key in our map)
 	for i := 1; i < len(fields)-1; i += 4 {
 		if fields[i] == "A" {
 			if _, ok := data[fields[i+3]]; ok {
