@@ -14,9 +14,10 @@ func main() {
 
 	config := GetMqttConfig()
 	mqttClient := CreateAndStartClient(config)
-
+	topic := GetMqttTopic()
 	interval := getIntervalFromConfig()
 	print("Fetching interval from config.txt\n")
+
 	// print(interval)
 	if interval == -1 {
 		fmt.Fprintf(os.Stderr, "Could not read config.txt, defaulting to 10 seconds\n")
@@ -108,7 +109,8 @@ func main() {
 			// print JSON data to console
 			// fmt.Println(string(jsonData))
 			// Publish JSON data to an MQTT topic
-			token := mqttClient.Publish("host01/GPS", 0, false, jsonData)
+
+			token := mqttClient.Publish(topic, 0, false, jsonData)
 			token.Wait()
 
 			nextWriteTime = nextWriteTime.Add(time.Duration(interval) * time.Millisecond)
