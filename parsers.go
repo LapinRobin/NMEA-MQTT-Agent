@@ -9,6 +9,10 @@ func parseSentence(sentenceType string, line string) (map[string]string, bool) {
 		return parseGPRMC(line)
 	case "$INXDR":
 		return parseINXDR(line)
+	case "$INDPT":
+		return parseINDPT(line)
+	case "$INHDT":
+		return parseINHDT(line)
 	default:
 		// Unsupported sentence typeinterface{}{}, false
 		return map[string]string{}, false
@@ -127,6 +131,46 @@ func parseINXDR(line string) (map[string]string, bool) {
 			}
 		}
 	}
+
+	return data, true
+}
+
+// helper function to parse $INDPT sentences
+func parseINDPT(line string) (map[string]string, bool) {
+	// Initialize map
+	data := map[string]string{
+		"depth": "0",
+	}
+
+	// Remove the checksum
+	splitLine := strings.Split(line, "*")
+
+	// If there's anything other than 2 parts, the line was malformed
+	if len(splitLine) != 2 {
+		return data, false
+	}
+
+	// Split the remaining line on commas
+	fields := strings.Split(splitLine[0], ",")
+
+	data["depth"] = fields[1]
+
+	return data, true
+}
+
+// helper function to parse $INHDT sentences
+func parseINHDT(line string) (map[string]string, bool) {
+	data := map[string]string{
+		"heading": "0",
+	}
+
+	splitLine := strings.Split(line, "*")
+	if len(splitLine) != 2 {
+		return data, false
+	}
+
+	fields := strings.Split(splitLine[0], ",")
+	data["heading"] = fields[1]
 
 	return data, true
 }

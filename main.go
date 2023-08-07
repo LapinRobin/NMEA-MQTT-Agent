@@ -6,17 +6,39 @@ import (
 	"log"
 	"net"
 	"os"
+	"runtime"
 	"strings"
 	"time"
 )
 
+func printMemUsage() {
+	var m runtime.MemStats
+	runtime.ReadMemStats(&m)
+
+	// For info on each, see: https://golang.org/pkg/runtime/#MemStats
+	fmt.Printf("Alloc = %v MiB", bToMb(m.Alloc))
+	fmt.Printf("\tTotalAlloc = %v MiB", bToMb(m.TotalAlloc))
+	fmt.Printf("\tSys = %v MiB", bToMb(m.Sys))
+	fmt.Printf("\tNumGC = %v\n", m.NumGC)
+}
+
+func bToMb(b uint64) uint64 {
+	return b / 1024 / 1024
+}
+
 func main() {
 
 	config := GetMqttConfig()
+	print("Fetching MQTT config from mqtt_config.txt...\n")
+
 	mqttClient := CreateAndStartClient(config)
+	print("Creating and starting MQTT client...\n")
+
 	topic := GetMqttTopic()
+	print("Fetching MQTT topic from mqtt_config.txt...\n")
+
 	interval := getIntervalFromConfig()
-	print("Fetching interval from config.txt\n")
+	print("Fetching interval from config.txt...\n")
 
 	// print(interval)
 	if interval == -1 {
@@ -68,10 +90,10 @@ func main() {
 		lines := strings.Split(string(buffer), "\r\n")
 
 		for _, line := range lines {
+
 			for _, sentence := range sentences {
 				if strings.HasPrefix(line, sentence) {
 					data, isValidData := parseSentence(sentence, line)
-
 					if isValidData {
 						if parsedData[sentence] == nil {
 							parsedData[sentence] = make(map[string]string)
