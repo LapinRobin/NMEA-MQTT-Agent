@@ -1,4 +1,4 @@
-broker=tcp://192.168.29.195:1883
+broker=tcp://192.168.29.102:1883
 clientID=boat01
 password=admin
 username=admin

@@ -7,6 +7,7 @@ import (
 	"net"
 	"os"
 	"runtime"
+	"strconv"
 	"strings"
 	"time"
 )
@@ -24,6 +25,14 @@ func printMemUsage() {
 
 func bToMb(b uint64) uint64 {
 	return b / 1024 / 1024
+}
+
+func isZeroValue(s string) bool {
+	// Try to parse as float first (which also handles integers)
+	if val, err := strconv.ParseFloat(s, 64); err == nil && val == 0 {
+		return true
+	}
+	return false
 }
 
 func main() {
@@ -101,7 +110,12 @@ func main() {
 						// store parsed data for each sentence type
 						// basically a map of maps
 						// stores the latest data for each sentence type
-						parsedData[sentence] = data
+						for key, value := range data {
+							// Update only if the value is not representing a zero
+							if !isZeroValue(value) {
+								parsedData[sentence][key] = value
+							}
+						}
 					}
 				}
 			}

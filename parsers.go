@@ -97,21 +97,7 @@ func parseGPRMC(line string) (map[string]string, bool) {
 // helper function to parse $INXDR sentences
 func parseINXDR(line string) (map[string]string, bool) {
 	// Initialize map
-	data := map[string]string{
-		"Trim":    "0",
-		"FoilA":   "0",
-		"CANT":    "0",
-		"D0":      "0",
-		"D0lee":   "0",
-		"Runner":  "0",
-		"J2":      "0",
-		"J3":      "0",
-		"RSA":     "0",
-		"Baro":    "0",
-		"FOILMIN": "0",
-		"Leeway":  "0",
-		"MastRot": "0",
-	}
+	data := make(map[string]string)
 
 	// Remove the checksum
 	splitLine := strings.Split(line, "*")
@@ -124,11 +110,10 @@ func parseINXDR(line string) (map[string]string, bool) {
 	// Split the remaining line on commas
 	fields := strings.Split(splitLine[0], ",")
 
-	for i := 1; i < len(fields)-1; i += 4 {
-		if fields[i] == "A" {
-			if _, ok := data[fields[i+3]]; ok {
-				data[fields[i+3]] = fields[i+1]
-			}
+	if fields[1] == "A" {
+		if fields[2] != "" {
+
+			data[fields[4]] = fields[2]
 		}
 	}
 
