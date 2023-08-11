@@ -17,3 +17,7 @@ This program is built for Windows 10 and above only and has not been tested on o
 With the config files correctly configured, use the command `go build` to build the executable. Then run the executable either by clicking on it or by using the command `.\main.exe` in the Command Prompt or PowerShell.
 
 To directly compile and run the code, use the command `go run .` .
+
+## Caveats
+
+To be able to stop the mosquitto service when the program terminates, run the program as administrator. 

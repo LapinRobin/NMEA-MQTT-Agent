@@ -48,7 +48,15 @@ func main() {
 		// Block until we receive a signal
 		sig := <-signals
 		fmt.Printf("\nReceived signal: %s. Stopping Mosquitto service...\n", sig)
-		StopMosquitto()
+		// wait for mosquitto to stop
+		time.Sleep(500 * time.Millisecond)
+		if IsMosquittoRunning() {
+			fmt.Println("Mosquitto service is still running, shutting down...")
+			StopMosquitto()
+		} else {
+			fmt.Println("Mosquitto service is off, terminating program...")
+		}
+
 		os.Exit(0)
 	}()
 

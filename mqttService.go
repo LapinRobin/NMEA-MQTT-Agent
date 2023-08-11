@@ -2,6 +2,7 @@ package main
 
 import (
 	"bufio"
+	"fmt"
 	"log"
 	"os"
 	"os/exec"
@@ -17,50 +18,52 @@ type MqttConfig struct {
 	Username string
 }
 
-func isMosquittoRunning() bool {
+func IsMosquittoRunning() bool {
+	// Use tasklist to check for mosquitto.exe process
 	cmd := exec.Command("tasklist", "/FI", "IMAGENAME eq mosquitto.exe")
-	output, err := cmd.CombinedOutput()
+	output, err := cmd.Output() // This captures the standard output of the command
+
 	if err != nil {
-		log.Fatalf("Failed to fetch task list: %s\n%s", err, output)
+		log.Fatalf("Failed to fetch task list: %s", err)
+		return false
 	}
 
 	// If the output contains 'mosquitto.exe', then Mosquitto is running
-	if strings.Contains(string(output), "mosquitto.exe") {
-		return true
-	}
-	return false
+	return strings.Contains(string(output), "mosquitto.exe")
 }
 
 func StartMosquitto() *exec.Cmd {
+	if IsMosquittoRunning() {
+		fmt.Println("mosquitto.exe is already running.")
+		return nil
+	}
+
 	cmd := exec.Command(`C:\Program Files\mosquitto\mosquitto.exe`)
 	err := cmd.Start()
 	if err != nil {
 		log.Fatalf("Failed to start Mosquitto: %s", err)
 	}
 
-	// Handle unexpected termination of mosquitto in a goroutine
-	go func() {
-		err = cmd.Wait()
-		if err != nil {
-			log.Printf("Mosquitto process exited with error: %s", err)
-		} else {
-			log.Println("Mosquitto process exited gracefully.")
-		}
-	}()
-
 	return cmd
 }
 
 func StopMosquitto() {
-	if !isMosquittoRunning() {
-		log.Println("Mosquitto process is not running.")
-		return
-	}
 
 	cmd := exec.Command(`taskkill`, `/IM`, `mosquitto.exe`, `/F`)
 	err := cmd.Run()
+	// wait for 1 second
+	cmd.Wait()
+
 	if err != nil {
-		log.Fatalf("Failed to stop Mosquitto: %s", err)
+		if exitError, ok := err.(*exec.ExitError); ok && exitError.ExitCode() == 128 {
+			// Process killed
+			log.Printf("Warning: Mosquitto process not found.")
+		} else {
+			// Other errors
+			log.Printf("Error while attempting to terminate Mosquitto: %s", err)
+		}
+	} else {
+		log.Println("Successfully terminated Mosquitto.")
 	}
 }
 
