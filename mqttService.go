@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"log"
 	"os"
+	"os/exec"
 	"strings"
 
 	mqtt "github.com/eclipse/paho.mqtt.golang"
@@ -14,6 +15,53 @@ type MqttConfig struct {
 	ClientID string
 	Password string
 	Username string
+}
+
+func isMosquittoRunning() bool {
+	cmd := exec.Command("tasklist", "/FI", "IMAGENAME eq mosquitto.exe")
+	output, err := cmd.CombinedOutput()
+	if err != nil {
+		log.Fatalf("Failed to fetch task list: %s\n%s", err, output)
+	}
+
+	// If the output contains 'mosquitto.exe', then Mosquitto is running
+	if strings.Contains(string(output), "mosquitto.exe") {
+		return true
+	}
+	return false
+}
+
+func StartMosquitto() *exec.Cmd {
+	cmd := exec.Command(`C:\Program Files\mosquitto\mosquitto.exe`)
+	err := cmd.Start()
+	if err != nil {
+		log.Fatalf("Failed to start Mosquitto: %s", err)
+	}
+
+	// Handle unexpected termination of mosquitto in a goroutine
+	go func() {
+		err = cmd.Wait()
+		if err != nil {
+			log.Printf("Mosquitto process exited with error: %s", err)
+		} else {
+			log.Println("Mosquitto process exited gracefully.")
+		}
+	}()
+
+	return cmd
+}
+
+func StopMosquitto() {
+	if !isMosquittoRunning() {
+		log.Println("Mosquitto process is not running.")
+		return
+	}
+
+	cmd := exec.Command(`taskkill`, `/IM`, `mosquitto.exe`, `/F`)
+	err := cmd.Run()
+	if err != nil {
+		log.Fatalf("Failed to stop Mosquitto: %s", err)
+	}
 }
 
 func GetMqttConfig() MqttConfig {

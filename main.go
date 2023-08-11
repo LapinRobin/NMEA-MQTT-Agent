@@ -6,9 +6,11 @@ import (
 	"log"
 	"net"
 	"os"
+	"os/signal"
 	"runtime"
 	"strconv"
 	"strings"
+	"syscall"
 	"time"
 )
 
@@ -37,14 +39,31 @@ func isZeroValue(s string) bool {
 
 func main() {
 
-	config := GetMqttConfig()
+	// Set up signal catching
+	signals := make(chan os.Signal, 1)
+	// Notify signals (SIGINT = Ctrl+C, SIGTERM = Termination request)
+	signal.Notify(signals, syscall.SIGINT, syscall.SIGTERM)
+
+	go func() {
+		// Block until we receive a signal
+		sig := <-signals
+		fmt.Printf("\nReceived signal: %s. Stopping Mosquitto service...\n", sig)
+		StopMosquitto()
+		os.Exit(0)
+	}()
+
+	// startMosquitto()
+	print("Starting Mosquitto service...\n")
+	StartMosquitto()
+
 	print("Fetching MQTT config from mqtt_config.txt...\n")
+	config := GetMqttConfig()
 
-	mqttClient := CreateAndStartClient(config)
 	print("Creating and starting MQTT client...\n")
+	mqttClient := CreateAndStartClient(config)
 
-	topic := GetMqttTopic()
 	print("Fetching MQTT topic from mqtt_config.txt...\n")
+	topic := GetMqttTopic()
 
 	interval := getIntervalFromConfig()
 	print("Fetching interval from config.txt...\n")
@@ -88,7 +107,7 @@ func main() {
 	// store parsed data for each sentence
 	parsedData := make(map[string]map[string]string)
 
-	// GPRMC parsing
+	// parsing
 	for {
 		buffer := make([]byte, buffSize)
 		_, _, err := conn.ReadFromUDP(buffer)
