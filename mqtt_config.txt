@@ -1,5 +1,5 @@
-broker=tcp://192.168.29.102:1883
+broker=tcp://91.121.90.81:1883
 clientID=boat01
 password=admin
 username=admin
-topic=host01/GPS
+topic=host01/mqtt

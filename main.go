@@ -112,6 +112,11 @@ func main() {
 	fmt.Println("Listening on UDP port", port)
 	fmt.Println("Sending data every", interval, "milliseconds")
 
+	// print broker address and topic
+
+	fmt.Println("Topic:", topic)
+	fmt.Println("Broker:", config.Broker)
+
 	// store parsed data for each sentence
 	parsedData := make(map[string]map[string]string)
 
