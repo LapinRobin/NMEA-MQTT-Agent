@@ -172,7 +172,7 @@ func main() {
 			// 1. Transform string values to numbers.
 			transformedData := make(map[string]interface{})
 
-			var datetime int64
+			var datetime string
 			for key, innerMap := range parsedData {
 				transformedData[key] = make(map[string]interface{})
 
@@ -204,12 +204,21 @@ func main() {
 				// Combine date and time to form Unix datetime.
 				if date, ok := innerMap["date"]; ok {
 					if t, ok := innerMap["time"]; ok {
-						dtStr := fmt.Sprintf("20%s-%s-%sT%s:%s:%sZ", date[4:], date[2:4], date[0:2], t[0:2], t[2:4], t[4:6])
-						if dt, err := time.Parse(time.RFC3339, dtStr); err == nil {
-							datetime = dt.Unix()
+						// Split the time string to separate seconds and milliseconds.
+						timeParts := strings.Split(t, ".")
+						// Format seconds and milliseconds.
+						seconds := timeParts[0]
+						// Construct the datetime string without timezone since the provided data does not have a timezone.
+						dtStr := fmt.Sprintf("20%s-%s-%sT%s:%s:%sZ", date[4:6], date[2:4], date[0:2], seconds[0:2], seconds[2:4], seconds[4:6])
+						// Validate the datetime string using your format.
+						if _, err := time.Parse("2006-01-02T15:04:05Z07:00", dtStr); err == nil {
+							datetime = dtStr
+						} else {
+							log.Printf("Error parsing datetime: %v", err)
 						}
 					}
 				}
+
 			}
 
 			transformedData["datetime"] = datetime
