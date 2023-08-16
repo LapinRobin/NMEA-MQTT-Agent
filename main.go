@@ -170,41 +170,51 @@ func main() {
 			parsedData = make(map[string]map[string]string) */
 
 			// 1. Transform string values to numbers.
-			for _, innerMap := range parsedData {
+			transformedData := make(map[string]interface{})
+
+			var datetime int64
+			for key, innerMap := range parsedData {
+				transformedData[key] = make(map[string]interface{})
+
 				for innerKey, value := range innerMap {
-					if innerKey == "northSouth" {
+					switch innerKey {
+					case "northSouth":
 						if value == "N" {
-							innerMap[innerKey] = "1"
+							transformedData[key].(map[string]interface{})[innerKey] = 1
 						} else if value == "S" {
-							innerMap[innerKey] = "0"
+							transformedData[key].(map[string]interface{})[innerKey] = 0
 						}
-					} else if innerKey == "eastWest" {
+					case "eastWest":
 						if value == "E" {
-							innerMap[innerKey] = "1"
+							transformedData[key].(map[string]interface{})[innerKey] = 1
 						} else if value == "W" {
-							innerMap[innerKey] = "0"
+							transformedData[key].(map[string]interface{})[innerKey] = 0
 						}
-					} else if innerKey != "date" && innerKey != "time" {
+					case "date", "time":
+						// We'll handle these below after processing all the other fields.
+					default:
 						if numVal, err := strconv.ParseFloat(value, 64); err == nil {
-							innerMap[innerKey] = fmt.Sprintf("%.2f", numVal)
+							transformedData[key].(map[string]interface{})[innerKey] = numVal
+						} else {
+							transformedData[key].(map[string]interface{})[innerKey] = value
 						}
 					}
 				}
 
-				// 2. Combine date and time to form Unix datetime.
+				// Combine date and time to form Unix datetime.
 				if date, ok := innerMap["date"]; ok {
 					if t, ok := innerMap["time"]; ok {
 						dtStr := fmt.Sprintf("20%s-%s-%sT%s:%s:%sZ", date[4:], date[2:4], date[0:2], t[0:2], t[2:4], t[4:6])
 						if dt, err := time.Parse(time.RFC3339, dtStr); err == nil {
-							innerMap["datetime"] = strconv.FormatInt(dt.Unix(), 10)
-							delete(innerMap, "date")
-							delete(innerMap, "time")
+							datetime = dt.Unix()
 						}
 					}
 				}
 			}
 
-			jsonData, err := json.Marshal(parsedData)
+			transformedData["datetime"] = datetime
+
+			jsonData, err := json.Marshal(transformedData)
 			if err != nil {
 				log.Fatalf("Failed to marshal JSON: %v", err)
 			}
