@@ -155,6 +155,55 @@ func main() {
 
 		// If it's time to send data and if any data to send
 		if time.Now().After(nextWriteTime) && len(parsedData) > 0 {
+			/* jsonData, err := json.Marshal(parsedData)
+			if err != nil {
+				log.Fatalf("Failed to marshal JSON: %v", err)
+			}
+
+			print("publishing data...\n")
+
+			// Publish JSON data to an MQTT topic
+			token := mqttClient.Publish(topic, 0, false, jsonData)
+			token.Wait()
+
+			nextWriteTime = nextWriteTime.Add(time.Duration(interval) * time.Millisecond)
+			parsedData = make(map[string]map[string]string) */
+
+			// 1. Transform string values to numbers.
+			for _, innerMap := range parsedData {
+				for innerKey, value := range innerMap {
+					if innerKey == "northSouth" {
+						if value == "N" {
+							innerMap[innerKey] = "1"
+						} else if value == "S" {
+							innerMap[innerKey] = "0"
+						}
+					} else if innerKey == "eastWest" {
+						if value == "E" {
+							innerMap[innerKey] = "1"
+						} else if value == "W" {
+							innerMap[innerKey] = "0"
+						}
+					} else if innerKey != "date" && innerKey != "time" {
+						if numVal, err := strconv.ParseFloat(value, 64); err == nil {
+							innerMap[innerKey] = fmt.Sprintf("%.2f", numVal)
+						}
+					}
+				}
+
+				// 2. Combine date and time to form Unix datetime.
+				if date, ok := innerMap["date"]; ok {
+					if t, ok := innerMap["time"]; ok {
+						dtStr := fmt.Sprintf("20%s-%s-%sT%s:%s:%sZ", date[4:], date[2:4], date[0:2], t[0:2], t[2:4], t[4:6])
+						if dt, err := time.Parse(time.RFC3339, dtStr); err == nil {
+							innerMap["datetime"] = strconv.FormatInt(dt.Unix(), 10)
+							delete(innerMap, "date")
+							delete(innerMap, "time")
+						}
+					}
+				}
+			}
+
 			jsonData, err := json.Marshal(parsedData)
 			if err != nil {
 				log.Fatalf("Failed to marshal JSON: %v", err)
