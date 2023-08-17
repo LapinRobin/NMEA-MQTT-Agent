@@ -7,9 +7,14 @@ import (
 	"os"
 	"os/exec"
 	"strings"
+	"sync"
 
 	mqtt "github.com/eclipse/paho.mqtt.golang"
 )
+
+var isConnected = false
+var offlineMessages []string
+var mutex sync.Mutex
 
 type MqttConfig struct {
 	Broker   string
@@ -140,3 +145,47 @@ func GetMqttTopic() string {
 
 	return topic
 }
+
+func onConnectionLost(client mqtt.Client, err error) {
+	fmt.Println("Connection Lost:", err.Error())
+	isConnected = false
+}
+
+func onConnect(client mqtt.Client) {
+	fmt.Println("Connected")
+	isConnected = true
+
+	// Republish buffered messages
+	for _, msg := range offlineMessages {
+		// Use your publishing logic here
+		// Replace "your/topic" with the appropriate topic if it's dynamic or different
+		token := client.Publish("your/topic", 0, false, msg)
+		token.Wait()
+	}
+	offlineMessages = [] 
+	// Clear the buffer after republishing
+}
+
+func PublishMessage(client mqtt.Client, topic string, qos byte, retained bool, payload string) {
+    // Check if client is connected
+    if client.IsConnected() {
+        // If connected, first send all buffered messages
+        mutex.Lock()
+        for _, msg := range offlineMessages {
+            token := client.Publish(topic, qos, retained, msg)
+            token.Wait()
+        }
+        offlineMessages = []string{}  // Clear the buffer
+        mutex.Unlock()
+        
+        // Publish current message
+        token := client.Publish(topic, qos, retained, payload)
+        token.Wait()
+    } else {
+        // If not connected, store the message in the buffer
+        mutex.Lock()
+        offlineMessages = append(offlineMessages, payload)
+        mutex.Unlock()
+	}
+}
+
