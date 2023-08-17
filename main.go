@@ -172,7 +172,7 @@ func main() {
 			// 1. Transform string values to numbers.
 			transformedData := make(map[string]interface{})
 
-			var datetime string
+			// var datetime string
 			for key, innerMap := range parsedData {
 				transformedData[key] = make(map[string]interface{})
 
@@ -202,7 +202,7 @@ func main() {
 				}
 
 				// Combine date and time to form Unix datetime.
-				if date, ok := innerMap["date"]; ok {
+				/* if date, ok := innerMap["date"]; ok {
 					if t, ok := innerMap["time"]; ok {
 						// Split the time string to separate seconds and milliseconds.
 						timeParts := strings.Split(t, ".")
@@ -217,10 +217,11 @@ func main() {
 							log.Printf("Error parsing datetime: %v", err)
 						}
 					}
-				}
+				} */
 
 			}
-
+			// use the current time as the datetime
+			datetime := strconv.FormatInt(time.Now().UnixMilli(), 10)
 			transformedData["datetime"] = datetime
 
 			jsonData, err := json.Marshal(transformedData)
