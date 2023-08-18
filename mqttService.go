@@ -4,10 +4,12 @@ import (
 	"bufio"
 	"fmt"
 	"log"
+	"net"
 	"os"
 	"os/exec"
 	"strings"
 	"sync"
+	"time"
 
 	mqtt "github.com/eclipse/paho.mqtt.golang"
 )
@@ -148,25 +150,46 @@ func GetMqttTopic() string {
 	return topic
 }
 
-func onConnectionLost(client mqtt.Client, err error) {
-	fmt.Println("Connection Lost:", err.Error())
-	isConnected = false
+func isBrokerAvailable(host string, port string) bool {
+	conn, err := net.DialTimeout("tcp", host+":"+port, 5*time.Second)
+	if err != nil {
+		return false
+	}
+	defer conn.Close()
+	return true
+
 }
 
-func onConnect(client mqtt.Client) {
-	fmt.Println("Connected")
-	isConnected = true
+func CheckBrokerConnectionRegularly(brokerURL string, client mqtt.Client) {
+	// Extract hostname and port from the broker URL
+	urlParts := strings.Split(brokerURL, "://")
+	hostParts := strings.Split(urlParts[1], ":")
+	host := hostParts[0]
+	port := hostParts[1]
 
-	// Republish buffered messages
-	for _, msg := range offlineMessages {
-		// Use your publishing logic here
-		// Replace "your/topic" with the appropriate topic if it's dynamic or different
-		token := client.Publish(GetMqttTopic(), 0, false, msg)
-		token.Wait()
-		fmt.Print("Republished: ", msg)
+	topic := GetMqttTopic() // get the MQTT topic to publish to
+
+	ticker := time.NewTicker(10 * time.Second) // Check every 10 seconds; adjust as needed
+	for range ticker.C {
+		if !isBrokerAvailable(host, port) {
+			// Connection is lost
+			isConnected = false
+			fmt.Println("Broker is not available")
+		} else if !isConnected { // If previously it was not connected, but now it is
+			isConnected = true
+			fmt.Println("Broker is now available")
+
+			// Republish buffered messages
+			mutex.Lock()
+			for _, msg := range offlineMessages {
+				token := client.Publish(topic, 0, false, msg)
+				token.Wait()
+				fmt.Print("Republished: ", msg)
+			}
+			offlineMessages = []string{} // Clear the buffer
+			mutex.Unlock()
+		}
 	}
-	offlineMessages = []string{}
-	// Clear the buffer after republishing
 }
 
 func PublishMessage(client mqtt.Client, topic string, qos byte, retained bool, payload string) {

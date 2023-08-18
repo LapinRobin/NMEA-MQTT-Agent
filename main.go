@@ -69,6 +69,8 @@ func main() {
 	print("Creating and starting MQTT client...\n")
 	mqttClient := CreateAndStartClient(config)
 
+	go CheckBrokerConnectionRegularly(config.Broker, mqttClient)
+
 	print("Fetching MQTT topic from mqtt_config.txt...\n")
 	topic := GetMqttTopic()
 
