@@ -115,8 +115,6 @@ func CreateAndStartClient(config MqttConfig) mqtt.Client {
 	opts.SetClientID(config.ClientID)
 	opts.SetPassword(config.Password)
 	opts.SetUsername(config.Username)
-	opts.SetOnConnectHandler(onConnect)
-	opts.SetConnectionLostHandler(onConnectionLost)
 
 	client := mqtt.NewClient(opts)
 	if token := client.Connect(); token.Wait() && token.Error() != nil {
