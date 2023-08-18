@@ -7,14 +7,13 @@ import (
 	"net"
 	"os"
 	"os/signal"
-	"runtime"
 	"strconv"
 	"strings"
 	"syscall"
 	"time"
 )
 
-func printMemUsage() {
+/* func printMemUsage() {
 	var m runtime.MemStats
 	runtime.ReadMemStats(&m)
 
@@ -27,7 +26,7 @@ func printMemUsage() {
 
 func bToMb(b uint64) uint64 {
 	return b / 1024 / 1024
-}
+} */
 
 func isZeroValue(s string) bool {
 	// Try to parse as float first (which also handles integers)
@@ -232,8 +231,7 @@ func main() {
 			print("publishing data...\n")
 
 			// Publish JSON data to an MQTT topic
-			token := mqttClient.Publish(topic, 0, false, jsonData)
-			token.Wait()
+			PublishMessage(mqttClient, topic, 0, false, string(jsonData))
 
 			nextWriteTime = nextWriteTime.Add(time.Duration(interval) * time.Millisecond)
 			parsedData = make(map[string]map[string]string)

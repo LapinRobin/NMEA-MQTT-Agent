@@ -113,6 +113,8 @@ func CreateAndStartClient(config MqttConfig) mqtt.Client {
 	opts.SetClientID(config.ClientID)
 	opts.SetPassword(config.Password)
 	opts.SetUsername(config.Username)
+	opts.SetOnConnectHandler(onConnect)
+	opts.SetConnectionLostHandler(onConnectionLost)
 
 	client := mqtt.NewClient(opts)
 	if token := client.Connect(); token.Wait() && token.Error() != nil {
@@ -159,33 +161,33 @@ func onConnect(client mqtt.Client) {
 	for _, msg := range offlineMessages {
 		// Use your publishing logic here
 		// Replace "your/topic" with the appropriate topic if it's dynamic or different
-		token := client.Publish("your/topic", 0, false, msg)
+		token := client.Publish(GetMqttTopic(), 0, false, msg)
 		token.Wait()
+		fmt.Print("Republished: ", msg)
 	}
-	offlineMessages = [] 
+	offlineMessages = []string{}
 	// Clear the buffer after republishing
 }
 
 func PublishMessage(client mqtt.Client, topic string, qos byte, retained bool, payload string) {
-    // Check if client is connected
-    if client.IsConnected() {
-        // If connected, first send all buffered messages
-        mutex.Lock()
-        for _, msg := range offlineMessages {
-            token := client.Publish(topic, qos, retained, msg)
-            token.Wait()
-        }
-        offlineMessages = []string{}  // Clear the buffer
-        mutex.Unlock()
-        
-        // Publish current message
-        token := client.Publish(topic, qos, retained, payload)
-        token.Wait()
-    } else {
-        // If not connected, store the message in the buffer
-        mutex.Lock()
-        offlineMessages = append(offlineMessages, payload)
-        mutex.Unlock()
+	// Check if client is connected
+	if client.IsConnected() {
+		// If connected, first send all buffered messages
+		mutex.Lock()
+		for _, msg := range offlineMessages {
+			token := client.Publish(topic, qos, retained, msg)
+			token.Wait()
+		}
+		offlineMessages = []string{} // Clear the buffer
+		mutex.Unlock()
+
+		// Publish current message
+		token := client.Publish(topic, qos, retained, payload)
+		token.Wait()
+	} else {
+		// If not connected, store the message in the buffer
+		mutex.Lock()
+		offlineMessages = append(offlineMessages, payload)
+		mutex.Unlock()
 	}
 }
-
