@@ -201,9 +201,9 @@ func main() {
 						}
 					}
 				}
-
+				var datetime string
 				// Combine date and time to form Unix datetime.
-				/* if date, ok := innerMap["date"]; ok {
+				if date, ok := innerMap["date"]; ok {
 					if t, ok := innerMap["time"]; ok {
 						// Split the time string to separate seconds and milliseconds.
 						timeParts := strings.Split(t, ".")
@@ -214,16 +214,14 @@ func main() {
 						// Validate the datetime string using your format.
 						if dt, err := time.Parse("2006-01-02T15:04:05Z07:00", dtStr); err == nil {
 							datetime = strconv.FormatInt(dt.UnixMilli(), 10)
+							transformedData["datetime"] = datetime
 						} else {
 							log.Printf("Error parsing datetime: %v", err)
 						}
 					}
-				} */
+				}
 
 			}
-			// use the current time as the datetime
-			datetime := strconv.FormatInt(time.Now().UnixMilli(), 10)
-			transformedData["datetime"] = datetime
 
 			jsonData, err := json.Marshal(transformedData)
 			if err != nil {
