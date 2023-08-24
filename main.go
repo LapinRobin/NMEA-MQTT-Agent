@@ -219,6 +219,10 @@ func main() {
 							log.Printf("Error parsing datetime: %v", err)
 						}
 					}
+				} else {
+					// If date and time are not available, use the current time.
+					datetime = strconv.FormatInt(time.Now().UnixMilli(), 10)
+					transformedData["datetime"] = datetime
 				}
 
 			}
