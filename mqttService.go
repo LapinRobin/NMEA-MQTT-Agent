@@ -165,8 +165,6 @@ func CheckBrokerConnectionRegularly(brokerURL string, client mqtt.Client) {
 	host := hostParts[0]
 	port := hostParts[1]
 
-	topic := GetMqttTopic() // get the MQTT topic to publish to
-
 	ticker := time.NewTicker(10 * time.Second) // Check every 10 seconds; adjust as needed
 	for range ticker.C {
 		if !isBrokerAvailable(host, port) {
@@ -176,26 +174,18 @@ func CheckBrokerConnectionRegularly(brokerURL string, client mqtt.Client) {
 		} else if !isConnected { // If previously it was not connected, but now it is
 			isConnected = true
 			fmt.Println("Broker is now available")
-
-			// Republish buffered messages
-			mutex.Lock()
-			for _, msg := range offlineMessages {
-				token := client.Publish(topic, 0, false, msg)
-				token.Wait()
-				fmt.Print("Republished: ", msg)
-			}
-			offlineMessages = []string{} // Clear the buffer
-			mutex.Unlock()
 		}
 	}
 }
 
 func PublishMessage(client mqtt.Client, topic string, qos byte, retained bool, payload string) {
 	// Check if client is connected
-	if client.IsConnected() {
+	if isConnected {
 		// If connected, first send all buffered messages
+		fmt.Println("Client is connected.")
 		mutex.Lock()
 		for _, msg := range offlineMessages {
+			fmt.Println("Publishing buffer messages...")
 			token := client.Publish(topic, qos, retained, msg)
 			token.Wait()
 		}
@@ -206,6 +196,7 @@ func PublishMessage(client mqtt.Client, topic string, qos byte, retained bool, p
 		token := client.Publish(topic, qos, retained, payload)
 		token.Wait()
 	} else {
+		fmt.Println("Client is disconnected. Buffering message: ", payload)
 		// If not connected, store the message in the buffer
 		mutex.Lock()
 		offlineMessages = append(offlineMessages, payload)
