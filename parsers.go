@@ -205,7 +205,8 @@ func parseINLWY(line string) (map[string]string, bool) {
 
 func parseINMWV(line string) (map[string]string, bool) {
 	data := map[string]string{
-		"angle": "0",
+		"T": "0",
+		"N": "0",
 	}
 
 	splitLine := strings.Split(line, "*")
@@ -214,7 +215,8 @@ func parseINMWV(line string) (map[string]string, bool) {
 	}
 
 	fields := strings.Split(splitLine[0], ",")
-	data["angle"] = fields[1]
+	data["T"] = fields[1]
+	data["N"] = fields[3]
 
 	return data, true
 }
