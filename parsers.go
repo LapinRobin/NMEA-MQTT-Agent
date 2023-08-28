@@ -13,6 +13,24 @@ func parseSentence(sentenceType string, line string) (map[string]string, bool) {
 		return parseINDPT(line)
 	case "$INHDT":
 		return parseINHDT(line)
+	case "$INLWY":
+		return parseINLWY(line)
+	case "$INMWV":
+		return parseINMWV(line)
+	case "$INMTW":
+		return parseINMTW(line)
+	case "$INMTA":
+		return parseINMTA(line)
+	case "$INRSA":
+		return parseINRSA(line)
+	case "$INMMB":
+		return parseINMMB(line)
+	case "$INVPW":
+		return parseINVPW(line)
+	case "$INHVD":
+		return parseINHVD(line)
+	case "$INVHW":
+		return parseINVHW(line)
 	default:
 		// Unsupported sentence typeinterface{}{}, false
 		return map[string]string{}, false
@@ -109,11 +127,18 @@ func parseINXDR(line string) (map[string]string, bool) {
 
 	// Split the remaining line on commas
 	fields := strings.Split(splitLine[0], ",")
+	for i := 1; i+3 < len(fields); i += 4 {
+		status := fields[i]
+		value := fields[i+1]
+		// unit := fields[i+2]  // Uncomment if you need to use the unit
+		label := fields[i+3]
 
-	if fields[1] == "A" {
-		if fields[2] != "" {
+		if i == 1 && status == "G" && value != "" {
+			data[label] = value
+		}
 
-			data[fields[4]] = fields[2]
+		if status == "A" && value != "" {
+			data[label] = value
 		}
 	}
 
@@ -156,6 +181,157 @@ func parseINHDT(line string) (map[string]string, bool) {
 
 	fields := strings.Split(splitLine[0], ",")
 	data["heading"] = fields[1]
+
+	return data, true
+}
+
+func parseINLWY(line string) (map[string]string, bool) {
+	data := map[string]string{
+		"angle": "0",
+	}
+
+	splitLine := strings.Split(line, "*")
+	if len(splitLine) != 2 {
+		return data, false
+	}
+
+	fields := strings.Split(splitLine[0], ",")
+	data["angle"] = fields[2]
+
+	return data, true
+}
+
+func parseINMWV(line string) (map[string]string, bool) {
+	data := map[string]string{
+		"angle": "0",
+	}
+
+	splitLine := strings.Split(line, "*")
+	if len(splitLine) != 2 {
+		return data, false
+	}
+
+	fields := strings.Split(splitLine[0], ",")
+	data["angle"] = fields[1]
+
+	return data, true
+}
+
+func parseINMTW(line string) (map[string]string, bool) {
+	data := map[string]string{
+		"temperature": "0",
+	}
+
+	splitLine := strings.Split(line, "*")
+	if len(splitLine) != 2 {
+		return data, false
+	}
+
+	fields := strings.Split(splitLine[0], ",")
+	data["temperature"] = fields[1]
+
+	return data, true
+}
+
+func parseINMTA(line string) (map[string]string, bool) {
+	data := map[string]string{
+		"temperature": "0",
+	}
+
+	splitLine := strings.Split(line, "*")
+	if len(splitLine) != 2 {
+		return data, false
+	}
+
+	fields := strings.Split(splitLine[0], ",")
+	data["temperature"] = fields[1]
+
+	return data, true
+}
+
+func parseINRSA(line string) (map[string]string, bool) {
+	data := map[string]string{
+		"angle": "0",
+	}
+
+	splitLine := strings.Split(line, "*")
+	if len(splitLine) != 2 {
+		return data, false
+	}
+
+	fields := strings.Split(splitLine[0], ",")
+	data["angle"] = fields[1]
+
+	return data, true
+}
+
+func parseINMMB(line string) (map[string]string, bool) {
+	data := map[string]string{
+		"pressure": "0",
+	}
+
+	splitLine := strings.Split(line, "*")
+	if len(splitLine) != 2 {
+		return data, false
+	}
+
+	fields := strings.Split(splitLine[0], ",")
+	data["pressure"] = fields[3]
+
+	return data, true
+}
+
+// $INVPW,-0.0,N,-0.0,M*55
+func parseINVPW(line string) (map[string]string, bool) {
+	data := map[string]string{
+		"N": "0",
+		"M": "0",
+	}
+
+	splitLine := strings.Split(line, "*")
+	if len(splitLine) != 2 {
+		return data, false
+	}
+
+	fields := strings.Split(splitLine[0], ",")
+	data["N"] = fields[1]
+	data["M"] = fields[3]
+
+	return data, true
+}
+
+func parseINHVD(line string) (map[string]string, bool) {
+	data := map[string]string{
+		"hvd": "0",
+	}
+
+	splitLine := strings.Split(line, "*")
+	if len(splitLine) != 2 {
+		return data, false
+	}
+
+	fields := strings.Split(splitLine[0], ",")
+	data["hvd"] = fields[1]
+
+	return data, true
+}
+
+func parseINVHW(line string) (map[string]string, bool) {
+	data := map[string]string{
+		"angle":  "0",
+		"speedN": "0",
+		"speedK": "0",
+	}
+
+	splitLine := strings.Split(line, "*")
+	if len(splitLine) != 2 {
+		return data, false
+	}
+
+	fields := strings.Split(splitLine[0], ",")
+	data["angle"] = fields[1]
+	data["speedN"] = fields[5]
+	data["speedK"] = fields[7]
 
 	return data, true
 }
