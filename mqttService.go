@@ -166,6 +166,15 @@ func CheckBrokerConnectionRegularly(brokerURL string, client mqtt.Client) {
 	port := hostParts[1]
 
 	ticker := time.NewTicker(10 * time.Second) // Check every 10 seconds; adjust as needed
+	// first check without delay
+	if !isBrokerAvailable(host, port) {
+		// Connection is lost
+		isConnected = false
+		fmt.Println("Broker is not available")
+	} else { // If previously it was not connected, but now it is
+		isConnected = true
+		fmt.Println("Broker is now available")
+	}
 	for range ticker.C {
 		if !isBrokerAvailable(host, port) {
 			// Connection is lost
@@ -179,7 +188,7 @@ func CheckBrokerConnectionRegularly(brokerURL string, client mqtt.Client) {
 }
 
 func PublishMessage(client mqtt.Client, topic string, qos byte, retained bool, payload string) {
-	// Check if client is connected
+
 	if isConnected {
 		// If connected, first send all buffered messages
 		fmt.Println("Client is connected.")

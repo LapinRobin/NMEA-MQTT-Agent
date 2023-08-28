@@ -31,6 +31,8 @@ func parseSentence(sentenceType string, line string) (map[string]string, bool) {
 		return parseINHVD(line)
 	case "$INVHW":
 		return parseINVHW(line)
+	case "$INMWD":
+		return parseINMWD(line)
 	default:
 		// Unsupported sentence typeinterface{}{}, false
 		return map[string]string{}, false
@@ -332,6 +334,25 @@ func parseINVHW(line string) (map[string]string, bool) {
 	data["angle"] = fields[1]
 	data["speedN"] = fields[5]
 	data["speedK"] = fields[7]
+
+	return data, true
+}
+
+func parseINMWD(line string) (map[string]string, bool) {
+	data := map[string]string{
+		"T": "0",
+		"N": "0",
+		"M": "0",
+	}
+
+	splitLine := strings.Split(line, "*")
+	if len(splitLine) != 2 {
+		return data, false
+	}
+	fields := strings.Split(splitLine[0], ",")
+	data["T"] = fields[1]
+	data["N"] = fields[5]
+	data["M"] = fields[7]
 
 	return data, true
 }
