@@ -76,7 +76,7 @@ func main() {
 	topic := GetMqttTopic()
 
 	print("Fetching interval from udp_config.txt...\n")
-	interval := getIntervalFromConfig()
+	interval := GetIntervalFromConfig()
 
 	if interval == -1 {
 		fmt.Fprintf(os.Stderr,
@@ -84,15 +84,18 @@ func main() {
 		interval = 10000
 	}
 	print("Fetching port from udp_config.txt\n")
-	port := getPortFromConfig()
+	port := GetPortFromConfig()
 
 	print("Fetching sentences from udp_config.txt\n")
-	sentences := getSentencesFromConfig()
+	sentences := GetSentencesFromConfig()
 
 	print("Sentences to parse from: \n")
 	for _, sentence := range sentences {
 		fmt.Println(sentence)
 	}
+
+	sentenceMap := GetMapFromConfig()
+	fmt.Println(sentenceMap)
 
 	buffSize := 256
 	var conn *net.UDPConn

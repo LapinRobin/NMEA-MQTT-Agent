@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bufio"
 	"fmt"
 	"os"
 	"regexp"
@@ -25,7 +26,7 @@ func getFromConfig(key string) (string, error) {
 	return "", fmt.Errorf("Could not find key '%s' in udp_config.txt", key)
 }
 
-func getIntervalFromConfig() int {
+func GetIntervalFromConfig() int {
 	intervalStr, err := getFromConfig("interval")
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "%v\n", err)
@@ -41,7 +42,7 @@ func getIntervalFromConfig() int {
 	return interval
 }
 
-func getPortFromConfig() int {
+func GetPortFromConfig() int {
 	portStr, err := getFromConfig("port")
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "%v\n", err)
@@ -57,7 +58,7 @@ func getPortFromConfig() int {
 	return port
 }
 
-func getSentencesFromConfig() []string {
+func GetSentencesFromConfig() []string {
 	sentencesStr, err := getFromConfig("sentences")
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "%v\n", err)
@@ -81,6 +82,57 @@ func getSentencesFromConfig() []string {
 	return sentences
 }
 
-func getMapFromConfig() {
+func GetMapFromConfig() map[string]interface{} {
+	file, err := os.Open("udp_config.txt")
+	if err != nil {
+		fmt.Println("Error opening file:", err)
+		return nil
+	}
+	defer file.Close()
 
+	var rootMap = make(map[string]interface{})
+	var lastMap = make(map[int]map[string]interface{})
+
+	lastMap[-1] = rootMap
+	lastIndent := -1
+
+	scanner := bufio.NewScanner(file)
+	for scanner.Scan() {
+		line := scanner.Text()
+		indent, key := parseIndentAndKey(line)
+		if key == "map:" { // skip the 'map:' line
+			continue
+		}
+		if indent == lastIndent {
+			lastMap[indent][key] = make(map[string]interface{})
+			lastMap[indent] = lastMap[indent][key].(map[string]interface{})
+		} else if indent > lastIndent {
+			lastMap[indent] = make(map[string]interface{})
+			lastMap[lastIndent][key] = lastMap[indent]
+		} else {
+			for i := lastIndent; i > indent; i-- {
+				delete(lastMap, i)
+			}
+			lastMap[indent][key] = make(map[string]interface{})
+			lastMap[indent] = lastMap[indent][key].(map[string]interface{})
+		}
+		lastIndent = indent
+	}
+
+	if err := scanner.Err(); err != nil {
+		fmt.Println("Error reading file:", err)
+	}
+
+	return rootMap
+}
+
+func parseIndentAndKey(line string) (int, string) {
+	indent := 0
+	for i, ch := range line {
+		if ch != ' ' {
+			return indent / 4, line[i:]
+		}
+		indent++
+	}
+	return 0, ""
 }
