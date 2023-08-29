@@ -84,7 +84,7 @@ func GetSentencesFromConfig() []string {
 }
 
 func GetMapFromConfig() (map[string]map[string]interface{}, error) {
-	file, err := os.Open("upd_config.txt")
+	file, err := os.Open("udp_config.txt")
 	if err != nil {
 		return nil, err
 	}
