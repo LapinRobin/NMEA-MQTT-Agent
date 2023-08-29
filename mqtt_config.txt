@@ -2,4 +2,4 @@ broker=tcp://91.121.90.81:1883
 clientID=boat01
 password=admin
 username=admin
-topic=host01/mqtt
+topic=host01/test
