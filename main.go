@@ -223,7 +223,7 @@ func main() {
 
 			} */
 
-			jsonData, err := json.Marshal(transformedData)
+			jsonData, err := json.Marshal(parsedData)
 			if err != nil {
 				log.Fatalf("Failed to marshal JSON: %v", err)
 			}
