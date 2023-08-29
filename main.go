@@ -75,18 +75,18 @@ func main() {
 	print("Fetching MQTT topic from mqtt_config.txt...\n")
 	topic := GetMqttTopic()
 
-	print("Fetching interval from config.txt...\n")
+	print("Fetching interval from udp_config.txt...\n")
 	interval := getIntervalFromConfig()
 
 	if interval == -1 {
 		fmt.Fprintf(os.Stderr,
-			"Could not read config.txt, defaulting to 10 seconds\n")
+			"Could not read udp_config.txt, defaulting to 10 seconds\n")
 		interval = 10000
 	}
-	print("Fetching port from config.txt\n")
+	print("Fetching port from udp_config.txt\n")
 	port := getPortFromConfig()
 
-	print("Fetching sentences from config.txt\n")
+	print("Fetching sentences from udp_config.txt\n")
 	sentences := getSentencesFromConfig()
 
 	print("Sentences to parse from: \n")

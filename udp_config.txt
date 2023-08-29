@@ -1,0 +1,49 @@
+port=4001
+interval=10000
+sentences:
+    GPRMC:
+        1:time            
+        2:status   
+        3:latitude      
+        4:northSouth 
+        5:longitude  
+        6:eastWest  
+        7:sog             
+        8:cog            
+        9:date              
+
+
+    INDPT:
+        1:heading
+
+    INXDR:
+        
+    INHDT:
+
+    INLWY:
+
+    INVPW:
+
+    INMTW:
+
+
+    INMTA:
+
+
+    INRSA:
+
+
+    INMMB:
+
+    INHVD:
+
+    INVHW:
+
+
+
+
+
+
+
+
+(GPRMC,INDPT,INXDR,INHDT,INLWY,INVPW,INMTW,INMTA,INRSA,INMMB,INHVD,INVHW)
