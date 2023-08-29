@@ -9,12 +9,12 @@ import (
 )
 
 func getFromConfig(key string) (string, error) {
-	data, err := os.ReadFile("udp_udp_config.txt")
+	data, err := os.ReadFile("udp_config.txt")
 	if err != nil {
 		return "", fmt.Errorf("Could not open udp_config.txt: %v", err)
 	}
-
-	config := strings.Split(string(data), "\n")
+	// only get the first three lines
+	config := strings.Split(string(data), "\n")[:3]
 	for _, line := range config {
 		parts := strings.Split(line, "=")
 		if len(parts) == 2 && strings.TrimSpace(parts[0]) == key {
@@ -79,4 +79,8 @@ func getSentencesFromConfig() []string {
 	}
 
 	return sentences
+}
+
+func getMapFromConfig() {
+
 }

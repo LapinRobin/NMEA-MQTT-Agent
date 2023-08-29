@@ -1,43 +1,72 @@
 port=4001
 interval=10000
-sentences:
+sentences=(GPRMC,INDPT,INXDR,INHDT,INLWY,INVPW,INMTW,INMTA,INRSA,INMMB,INHVD,INVHW)
+map:
     GPRMC:
-        1:time            
-        2:status   
-        3:latitude      
-        4:northSouth 
-        5:longitude  
-        6:eastWest  
-        7:sog             
-        8:cog            
-        9:date              
-
-
+        1:Time
+        3:Latitude
+        4:NorthSouth
+        5:Longitude
+        6:EastWest
+        7:SOG
+        8:COG
+        9:Date
     INDPT:
-        1:heading
-
+        1:Depth
     INXDR:
-        
+        FOILMIN:
+            2:FOILMIN
+        MastRot:
+            2:MastRot
+        BulbSpeedo:
+            2:BulbSpeedo
+        RSA:
+            2:RSA
+        MWA:
+            2:MWA
+        MWS:
+            2:MWS
+        J3:
+            2:J3
+        J2:
+            2:J2
+        Runner:
+            2:Runner
+        D0lee:
+            2:D0lee
+        D0:
+            2:D0
+        CANT:
+            2:CANT
+        FoilA:
+            2:FoilA
+        Heel:
+            2:Heel
+        Trim:
+            2:Trim
     INHDT:
-
+        1:HDT
     INLWY:
-
+        1:LWY
     INVPW:
-
+        1:VPW
     INMTW:
-
-
+        1:MTW
     INMTA:
-
-
+        1:MTA
     INRSA:
-
-
+        1:RSA
     INMMB:
-
+        3:MMB
     INHVD:
-
+        1:HVD
     INVHW:
+        1:VHWHeading
+        2:VHWSpeed
+    INMWD:
+        1:MWDDirection
+        5:MWDSpeed
+    
 
 
 
@@ -46,4 +75,3 @@ sentences:
 
 
 
-(GPRMC,INDPT,INXDR,INHDT,INLWY,INVPW,INMTW,INMTA,INRSA,INMMB,INHVD,INVHW)
