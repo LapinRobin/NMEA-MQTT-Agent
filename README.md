@@ -6,7 +6,7 @@ This is a configurable NMEA parser and MQTT publisher written in Go.
 
 ## Configuration
 
-There are two config files: `udp_config.txt` and `mqtt_config.txt`. The `udp_config.txt` file contains the port to listen to on UDP, the interval of sending signals to MQTT, and the list of NMEA sentences to parse. The `mqtt_config.txt` file contains the MQTT broker address, port, clientID, username, and password.
+There are two config files: `udp_config.txt` and `mqtt_config.txt`. The `udp_config.txt` file contains the port to listen to on UDP, the interval of sending signals to MQTT, the list of NMEA sentences to parse and their structure in JSON format. The `mqtt_config.txt` file contains the MQTT broker address, port, clientID, username, and password.
 
 ## Compatibility
 

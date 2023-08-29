@@ -123,11 +123,11 @@ func main() {
 	}
 	defer conn.Close()
 
+	// print port and interval
 	fmt.Println("Listening on UDP port", port)
 	fmt.Println("Sending data every", interval, "milliseconds")
 
 	// print broker address and topic
-
 	fmt.Println("Topic:", topic)
 	fmt.Println("Broker:", config.Broker)
 
@@ -145,7 +145,6 @@ func main() {
 		lines := strings.Split(string(buffer), "\r\n")
 
 		for _, line := range lines {
-
 			for _, sentence := range sentences {
 				if strings.HasPrefix(line, sentence) {
 					data, isValidData := parseSentence(sentence, line, sentenceMap)
@@ -220,70 +219,15 @@ func main() {
 
 			transformedData["Datetime"] = dateTimeNum
 
-			// 1. Transform string values to numbers.
-			// transformedData := make(map[string]interface{})
-
-			// var datetime string
-			/* for key, innerMap := range parsedData {
-				transformedData[key] = make(map[string]interface{})
-
-				for innerKey, value := range innerMap {
-					switch innerKey {
-					case "northSouth":
-						if value == "N" {
-							transformedData[key].(map[string]interface{})[innerKey] = 1
-						} else if value == "S" {
-							transformedData[key].(map[string]interface{})[innerKey] = 0
-						}
-					case "eastWest":
-						if value == "E" {
-							transformedData[key].(map[string]interface{})[innerKey] = 1
-						} else if value == "W" {
-							transformedData[key].(map[string]interface{})[innerKey] = 0
-						}
-					case "date", "time":
-						// We'll handle these below after processing all the other fields.
-					default:
-						if numVal, err := strconv.ParseFloat(value, 64); err == nil {
-							transformedData[key].(map[string]interface{})[innerKey] = numVal
-						} else {
-							transformedData[key].(map[string]interface{})[innerKey] = value
-						}
-					}
-				}
-				var datetime string
-				// Combine date and time to form Unix datetime.
-				if date, ok := innerMap["date"]; ok {
-					if t, ok := innerMap["time"]; ok {
-						// Split the time string to separate seconds and milliseconds.
-						timeParts := strings.Split(t, ".")
-						// Format seconds and milliseconds.
-						seconds := timeParts[0]
-						// Construct the datetime string without timezone since the provided data does not have a timezone.
-						dtStr := fmt.Sprintf("20%s-%s-%sT%s:%s:%sZ", date[4:6], date[2:4], date[0:2], seconds[0:2], seconds[2:4], seconds[4:6])
-						// Validate the datetime string using your format.
-						if dt, err := time.Parse("2006-01-02T15:04:05Z07:00", dtStr); err == nil {
-							datetime = strconv.FormatInt(dt.UnixMilli(), 10)
-							transformedData["datetime"] = datetime
-						} else {
-							log.Printf("Error parsing datetime: %v", err)
-						}
-					}
-				} else {
-					// If date and time are not available, use the current time.
-					datetime = strconv.FormatInt(time.Now().UnixMilli(), 10)
-					transformedData["datetime"] = datetime
-				}
-
-			} */
-
 			jsonData, err := json.Marshal(transformedData)
 			if err != nil {
 				log.Fatalf("Failed to marshal JSON: %v", err)
 			}
 
 			print("publishing data...\n")
-			fmt.Println(string(jsonData))
+
+			// Uncomment this if you would like to see the message
+			// fmt.Println(string(jsonData))
 
 			// Publish JSON data to an MQTT topic
 			PublishMessage(mqttClient, topic, 0, false, string(jsonData))
