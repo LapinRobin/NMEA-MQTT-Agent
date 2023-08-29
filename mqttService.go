@@ -109,7 +109,7 @@ func GetMqttConfig() MqttConfig {
 	return config
 }
 
-func CreateAndStartClient(config MqttConfig) mqtt.Client {
+func CreateAndStartClient(config MqttConfig) (mqtt.Client, error) {
 	opts := mqtt.NewClientOptions()
 	opts.AddBroker(config.Broker)
 	opts.SetClientID(config.ClientID)
@@ -118,10 +118,10 @@ func CreateAndStartClient(config MqttConfig) mqtt.Client {
 
 	client := mqtt.NewClient(opts)
 	if token := client.Connect(); token.Wait() && token.Error() != nil {
-		log.Fatal(token.Error())
+		return nil, token.Error() // Return the error instead of logging it
 	}
 
-	return client
+	return client, nil // return client and nil error on successful connection
 }
 
 func GetMqttTopic() string {

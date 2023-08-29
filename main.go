@@ -11,22 +11,9 @@ import (
 	"strings"
 	"syscall"
 	"time"
+
+	mqtt "github.com/eclipse/paho.mqtt.golang"
 )
-
-/* func printMemUsage() {
-	var m runtime.MemStats
-	runtime.ReadMemStats(&m)
-
-	// For info on each, see: https://golang.org/pkg/runtime/#MemStats
-	fmt.Printf("Alloc = %v MiB", bToMb(m.Alloc))
-	fmt.Printf("\tTotalAlloc = %v MiB", bToMb(m.TotalAlloc))
-	fmt.Printf("\tSys = %v MiB", bToMb(m.Sys))
-	fmt.Printf("\tNumGC = %v\n", m.NumGC)
-}
-
-func bToMb(b uint64) uint64 {
-	return b / 1024 / 1024
-} */
 
 func isZeroValue(s string) bool {
 	// Try to parse as float first (which also handles integers)
@@ -67,28 +54,41 @@ func main() {
 	config := GetMqttConfig()
 
 	print("Creating and starting MQTT client...\n")
-	mqttClient := CreateAndStartClient(config)
 
+	var mqttClient mqtt.Client // Replace with actual type
+	var errClient error
+
+	// retry connection every 30 seconds if failed
+	for {
+		mqttClient, errClient = CreateAndStartClient(config)
+		if errClient != nil {
+			fmt.Println("Could not create and start client, error:", errClient)
+			fmt.Println("Retrying in 30 seconds...")
+			time.Sleep(30 * time.Second)
+			continue
+		}
+		break
+	}
+	// routine to check if broker is connected
 	go CheckBrokerConnectionRegularly(config.Broker, mqttClient)
 
 	print("Fetching MQTT topic from mqtt_config.txt...\n")
 	topic := GetMqttTopic()
 
-	interval := getIntervalFromConfig()
 	print("Fetching interval from config.txt...\n")
+	interval := getIntervalFromConfig()
 
-	// print(interval)
 	if interval == -1 {
 		fmt.Fprintf(os.Stderr,
 			"Could not read config.txt, defaulting to 10 seconds\n")
 		interval = 10000
 	}
-
-	port := getPortFromConfig()
 	print("Fetching port from config.txt\n")
+	port := getPortFromConfig()
 
-	sentences := getSentencesFromConfig()
 	print("Fetching sentences from config.txt\n")
+	sentences := getSentencesFromConfig()
+
 	print("Sentences to parse from: \n")
 	for _, sentence := range sentences {
 		fmt.Println(sentence)
@@ -96,6 +96,7 @@ func main() {
 
 	buffSize := 256
 	var conn *net.UDPConn
+	var errUDP error
 	nextWriteTime := time.Now()
 
 	addr := net.UDPAddr{
@@ -103,10 +104,16 @@ func main() {
 		IP:   net.IPv4zero,
 	}
 
-	conn, err := net.ListenUDP("udp", &addr)
-	if err != nil {
-		fmt.Println("Could not start server, error:", err)
-		return
+	// retry connection every 30 seconds if failed
+	for {
+		conn, errUDP = net.ListenUDP("udp", &addr)
+		if errUDP != nil {
+			fmt.Println("Could not start server, error:", errUDP)
+			fmt.Println("Retrying in 30 seconds...")
+			time.Sleep(30 * time.Second)
+			continue
+		}
+		break
 	}
 	defer conn.Close()
 
