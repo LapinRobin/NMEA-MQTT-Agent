@@ -94,8 +94,11 @@ func main() {
 		fmt.Println(sentence)
 	}
 
-	sentenceMap := GetMapFromConfig()
-	fmt.Println(sentenceMap)
+	var errMap error
+	sentenceMap, errMap := GetMapFromConfig()
+	if errMap == nil {
+		fmt.Println(sentenceMap)
+	}
 
 	buffSize := 256
 	var conn *net.UDPConn

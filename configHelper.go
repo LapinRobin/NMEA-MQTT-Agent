@@ -2,6 +2,7 @@ package main
 
 import (
 	"bufio"
+	"encoding/json"
 	"fmt"
 	"os"
 	"regexp"
@@ -82,57 +83,39 @@ func GetSentencesFromConfig() []string {
 	return sentences
 }
 
-func GetMapFromConfig() map[string]interface{} {
-	file, err := os.Open("udp_config.txt")
+func GetMapFromConfig() (map[string]map[string]interface{}, error) {
+	file, err := os.Open("upd_config.txt")
 	if err != nil {
-		fmt.Println("Error opening file:", err)
-		return nil
+		return nil, err
 	}
 	defer file.Close()
 
-	var rootMap = make(map[string]interface{})
-	var lastMap = make(map[int]map[string]interface{})
+	// Initialize variables
+	var sb strings.Builder
+	collectJSON := false
 
-	lastMap[-1] = rootMap
-	lastIndent := -1
-
+	// Read each line from the file
 	scanner := bufio.NewScanner(file)
 	for scanner.Scan() {
 		line := scanner.Text()
-		indent, key := parseIndentAndKey(line)
-		if key == "map:" { // skip the 'map:' line
+		if strings.TrimSpace(line) == "map:" {
+			collectJSON = true
 			continue
 		}
-		if indent == lastIndent {
-			lastMap[indent][key] = make(map[string]interface{})
-			lastMap[indent] = lastMap[indent][key].(map[string]interface{})
-		} else if indent > lastIndent {
-			lastMap[indent] = make(map[string]interface{})
-			lastMap[lastIndent][key] = lastMap[indent]
-		} else {
-			for i := lastIndent; i > indent; i-- {
-				delete(lastMap, i)
-			}
-			lastMap[indent][key] = make(map[string]interface{})
-			lastMap[indent] = lastMap[indent][key].(map[string]interface{})
+		if collectJSON {
+			sb.WriteString(line)
 		}
-		lastIndent = indent
 	}
-
 	if err := scanner.Err(); err != nil {
-		fmt.Println("Error reading file:", err)
+		return nil, err
 	}
 
-	return rootMap
-}
-
-func parseIndentAndKey(line string) (int, string) {
-	indent := 0
-	for i, ch := range line {
-		if ch != ' ' {
-			return indent / 4, line[i:]
-		}
-		indent++
+	// Decode JSON content into a Go map
+	var data map[string]map[string]interface{}
+	err = json.Unmarshal([]byte(sb.String()), &data)
+	if err != nil {
+		return nil, err
 	}
-	return 0, ""
+
+	return data, nil
 }
