@@ -165,6 +165,53 @@ func main() {
 
 		// If it's time to send data and if any data to send
 		if time.Now().After(nextWriteTime) && len(parsedData) > 0 {
+			transformedData := make(map[string]interface{})
+
+			var datetime string
+
+			for key, value := range parsedData {
+				switch key {
+				case "NorthSouth":
+					if value == "N" {
+						transformedData[key] = 1
+					} else if value == "S" {
+						transformedData[key] = 0
+					}
+				case "EastWest":
+					if value == "E" {
+						transformedData[key] = 1
+					} else if value == "W" {
+						transformedData[key] = 0
+					}
+				case "Date", "Time":
+					// Handle these below after processing all other fields
+				default:
+					if numVal, err := strconv.ParseFloat(value, 64); err == nil {
+						transformedData[key] = numVal
+					} else {
+						transformedData[key] = value
+					}
+				}
+			}
+
+			// Combine Date and Time to form Datetime.
+			if date, ok := parsedData["Date"]; ok {
+				if t, ok := parsedData["Time"]; ok {
+					dtStr := fmt.Sprintf("%sT%sZ", date, t)
+					if dt, err := time.Parse("2006-01-02T15:04:05Z", dtStr); err == nil {
+						datetime = strconv.FormatInt(dt.UnixMilli(), 10)
+					} else {
+						log.Printf("Error parsing datetime: %v", err)
+					}
+				}
+			}
+
+			if datetime == "" {
+				// If Date and Time are not available, use the current time.
+				datetime = strconv.FormatInt(time.Now().UnixMilli(), 10)
+			}
+
+			transformedData["Datetime"] = datetime
 
 			// 1. Transform string values to numbers.
 			// transformedData := make(map[string]interface{})
@@ -223,7 +270,7 @@ func main() {
 
 			} */
 
-			jsonData, err := json.Marshal(parsedData)
+			jsonData, err := json.Marshal(transformedData)
 			if err != nil {
 				log.Fatalf("Failed to marshal JSON: %v", err)
 			}
