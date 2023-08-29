@@ -167,7 +167,7 @@ func main() {
 		if time.Now().After(nextWriteTime) && len(parsedData) > 0 {
 
 			// 1. Transform string values to numbers.
-			transformedData := make(map[string]interface{})
+			// transformedData := make(map[string]interface{})
 
 			// var datetime string
 			/* for key, innerMap := range parsedData {
