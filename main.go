@@ -215,7 +215,10 @@ func main() {
 				datetime = strconv.FormatInt(time.Now().UnixMilli(), 10)
 			}
 
-			transformedData["Datetime"] = datetime
+			// turn datetime to number
+			dateTimeNum, err := strconv.ParseInt(datetime, 10, 64)
+
+			transformedData["Datetime"] = dateTimeNum
 
 			// 1. Transform string values to numbers.
 			// transformedData := make(map[string]interface{})
