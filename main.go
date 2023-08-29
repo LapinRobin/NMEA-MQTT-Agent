@@ -197,7 +197,11 @@ func main() {
 			// Combine Date and Time to form Datetime.
 			if date, ok := parsedData["Date"]; ok {
 				if t, ok := parsedData["Time"]; ok {
-					dtStr := fmt.Sprintf("%sT%sZ", date, t)
+					// Reformat the date string to match the "2006-01-02" format.
+					dtStr := fmt.Sprintf("20%s-%s-%sT%s:%s:%sZ",
+						date[4:6], date[2:4], date[0:2],
+						t[0:2], t[2:4], t[4:6])
+
 					if dt, err := time.Parse("2006-01-02T15:04:05Z", dtStr); err == nil {
 						datetime = strconv.FormatInt(dt.UnixMilli(), 10)
 					} else {
