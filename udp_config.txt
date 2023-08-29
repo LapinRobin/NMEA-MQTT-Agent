@@ -89,7 +89,7 @@ map:
   },
   "$INVHW": {
     "1": "VHWHeading",
-    "2": "VHWSpeed"
+    "5": "VHWSpeed"
   },
   "$INMWD": {
     "1": "MWDDirection",
