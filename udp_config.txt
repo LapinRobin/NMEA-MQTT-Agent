@@ -3,7 +3,7 @@ interval=10000
 sentences=(GPRMC,INDPT,INXDR,INHDT,INLWY,INVPW,INMTW,INMTA,INRSA,INMMB,INHVD,INVHW)
 map:
 {
-  "GPRMC": {
+  "$GPRMC": {
     "1": "Time",
     "3": "Latitude",
     "4": "NorthSouth",
@@ -13,10 +13,10 @@ map:
     "8": "COG",
     "9": "Date"
   },
-  "INDPT": {
+  "$INDPT": {
     "1": "Depth"
   },
-  "INXDR": {
+  "$INXDR": {
     "FOILMIN": {
       "2": "FOILMIN"
     },
@@ -63,35 +63,35 @@ map:
       "2": "Trim"
     }
   },
-  "INHDT": {
+  "$INHDT": {
     "1": "HDT"
   },
-  "INLWY": {
+  "$INLWY": {
     "1": "LWY"
   },
-  "INVPW": {
+  "$INVPW": {
     "1": "VPW"
   },
-  "INMTW": {
+  "$INMTW": {
     "1": "MTW"
   },
-  "INMTA": {
+  "$INMTA": {
     "1": "MTA"
   },
-  "INRSA": {
+  "$INRSA": {
     "1": "RSA"
   },
-  "INMMB": {
+  "$INMMB": {
     "3": "MMB"
   },
-  "INHVD": {
+  "$INHVD": {
     "1": "HVD"
   },
-  "INVHW": {
+  "$INVHW": {
     "1": "VHWHeading",
     "2": "VHWSpeed"
   },
-  "INMWD": {
+  "$INMWD": {
     "1": "MWDDirection",
     "5": "MWDSpeed"
   }

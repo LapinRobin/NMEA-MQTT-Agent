@@ -96,8 +96,8 @@ func main() {
 
 	var errMap error
 	sentenceMap, errMap := GetMapFromConfig()
-	if errMap == nil {
-		fmt.Println(sentenceMap)
+	if errMap != nil {
+		fmt.Fprintf(os.Stderr, "%v\n", errMap)
 	}
 
 	buffSize := 256
@@ -132,7 +132,7 @@ func main() {
 	fmt.Println("Broker:", config.Broker)
 
 	// store parsed data for each sentence
-	parsedData := make(map[string]map[string]string)
+	parsedData := make(map[string]string)
 
 	// parsing
 	for {
@@ -148,18 +148,14 @@ func main() {
 
 			for _, sentence := range sentences {
 				if strings.HasPrefix(line, sentence) {
-					data, isValidData := parseSentence(sentence, line)
+					data, isValidData := parseSentence(sentence, line, sentenceMap)
 					if isValidData {
-						if parsedData[sentence] == nil {
-							parsedData[sentence] = make(map[string]string)
-						}
-						// store parsed data for each sentence type
-						// basically a map of maps
+
 						// stores the latest data for each sentence type
 						for key, value := range data {
 							// Update only if the value is not representing a zero
 							if !isZeroValue(value) {
-								parsedData[sentence][key] = value
+								parsedData[key] = value
 							}
 						}
 					}
@@ -169,25 +165,12 @@ func main() {
 
 		// If it's time to send data and if any data to send
 		if time.Now().After(nextWriteTime) && len(parsedData) > 0 {
-			/* jsonData, err := json.Marshal(parsedData)
-			if err != nil {
-				log.Fatalf("Failed to marshal JSON: %v", err)
-			}
-
-			print("publishing data...\n")
-
-			// Publish JSON data to an MQTT topic
-			token := mqttClient.Publish(topic, 0, false, jsonData)
-			token.Wait()
-
-			nextWriteTime = nextWriteTime.Add(time.Duration(interval) * time.Millisecond)
-			parsedData = make(map[string]map[string]string) */
 
 			// 1. Transform string values to numbers.
 			transformedData := make(map[string]interface{})
 
 			// var datetime string
-			for key, innerMap := range parsedData {
+			/* for key, innerMap := range parsedData {
 				transformedData[key] = make(map[string]interface{})
 
 				for innerKey, value := range innerMap {
@@ -238,7 +221,7 @@ func main() {
 					transformedData["datetime"] = datetime
 				}
 
-			}
+			} */
 
 			jsonData, err := json.Marshal(transformedData)
 			if err != nil {
@@ -251,7 +234,7 @@ func main() {
 			PublishMessage(mqttClient, topic, 0, false, string(jsonData))
 
 			nextWriteTime = nextWriteTime.Add(time.Duration(interval) * time.Millisecond)
-			parsedData = make(map[string]map[string]string)
+			parsedData = make(map[string]string)
 
 		}
 	}
