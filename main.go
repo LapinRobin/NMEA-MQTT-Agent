@@ -276,6 +276,7 @@ func main() {
 			}
 
 			print("publishing data...\n")
+			fmt.Println(string(jsonData))
 
 			// Publish JSON data to an MQTT topic
 			PublishMessage(mqttClient, topic, 0, false, string(jsonData))
